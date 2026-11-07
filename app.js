@@ -106,7 +106,7 @@ document.querySelector("#timeSignature").addEventListener("change",()=>beat=0);w
    speed.disabled=false;
    setStatus("已載入："+(score.title||"未命名曲目")+" · "+(score.tracks||[]).length+" 條音軌。譜面已在本站顯示。");
  });
- api.playerReady.on(()=>setStatus(status.textContent+" 播放器已就緒。"));
+ api.playerReady.on(()=>{\n   playerReady=true;\n   if(loaded){playButton.disabled=false;stopButton.disabled=false;speed.disabled=false;}\n   setStatus(status.textContent+" 播放器已就緒。");\n });
  api.playerStateChanged.on(event=>{
    const state=String(event.state);
    playButton.textContent=/Playing/i.test(state)?"暫停":"播放";
@@ -144,7 +144,7 @@ document.querySelector("#timeSignature").addEventListener("change",()=>beat=0);w
    try{api.playPause();}catch(error){setStatus("無法播放："+(error.message||String(error)));}
  });
  stopButton.addEventListener("click",()=>{if(loaded)api.stop();playButton.textContent="播放";});
- speed.addEventListener("input",()=>{
+ const loopControl=document.getElementById("loopToggle");\n if(loopControl)loopControl.addEventListener("change",()=>{if(playerReady)api.isLooping=loopControl.checked;});\n speed.addEventListener("input",()=>{
    const value=Number(speed.value);
    speedValue.textContent=value+"%";
    if(api)api.playbackSpeed=value;
