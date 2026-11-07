@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090b10">
+  <meta name="description" content="GuitarSync - 吉他譜搜尋、比較與練習工作台。">
+  <title>GuitarSync | Guitar Tab Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="GuitarSync 首頁"><span class="brand-mark">G<span>↗</span></span><span>GUITAR<span class="brand-light">SYNC</span><small>THE GUITAR WORKSPACE</small></span></a>
+    <nav><a class="active" href="#search">譜面搜尋</a><a href="#workspace">TAB 工作台</a><a href="#about">關於</a></nav>
+    <div class="top-status"><i></i> SYSTEM ONLINE <span>V0.1</span></div>
+  </header>
+  <main>
+    <section class="hero">
+      <div class="eyebrow"><span></span> YOUR MUSIC. YOUR FRETBOARD.</div>
+      <h1>找到正確的譜。<br><em>彈出自己的聲音。</em></h1>
+      <p>搜尋吉他譜、比較不同版本，讓每一次練習都更接近原曲。</p>
+      <a class="hero-link" href="#search">開始探索 <b>↘</b></a>
+      <div class="hero-index"><span>01 / DISCOVER</span><span>GUITAR · BASS · TAB</span></div>
+    </section>
+
+    <section class="search-section panel" id="search">
+      <div class="section-head"><div><div class="eyebrow">01 — DISCOVER</div><h2>搜尋吉他譜</h2></div><span class="section-note">MULTI-SOURCE SEARCH</span></div>
+      <form id="searchForm" class="search-form">
+        <label class="search-input-wrap"><span>⌕</span><input id="songInput" type="search" placeholder="輸入歌曲名稱或藝人，例如：Sweet Child O' Mine" autocomplete="off" required></label>
+        <select id="instrument" aria-label="樂器"><option value="guitar">電吉他 / 木吉他</option><option value="bass">Bass</option></select>
+        <button class="primary-btn" type="submit">搜尋譜面 <span>↗</span></button>
+      </form>
+      <div class="search-hint"><span>POPULAR SOURCES</span><span>Songsterr</span><span>Ultimate Guitar</span><span>Google</span></div>
+      <div id="searchResults" class="results" aria-live="polite"><div class="empty-state"><span class="empty-icon">⌕</span><strong>輸入歌曲，開始搜尋</strong><small>結果會開啟各譜面平台的搜尋頁面，譜面內容與授權依原網站為準。</small></div></div>
+    </section>
+
+    <section class="workspace" id="workspace">
+      <div class="section-head"><div><div class="eyebrow">02 — WORKSPACE</div><h2>TAB 練習工作台</h2></div><span class="section-note">INTERACTIVE DEMO</span></div>
+      <div class="workspace-grid">
+        <div class="tab-panel panel">
+          <div class="track-head"><div><span class="live-dot"></span> TAB PREVIEW <span class="track-tag">DEMO</span></div><button id="copyTab" class="ghost-btn">複製 TAB ↗</button></div>
+          <div class="song-meta"><div><h3>Example Riff</h3><p>Standard Tuning · E A D G B E</p></div><div class="tempo"><strong>120</strong><small>BPM</small></div></div>
+          <div class="tab-scroll"><pre id="tabContent" class="tab-content">e|----------------|----------------|
+B|----------------|----------------|
+G|--------0-------|--------2-------|
+D|----2-----2---2-|----4-----4---4-|
+A|--2---2-----2---|--4---4-----4---|
+E|0---------------|2---------------|</pre></div>
+          <div class="tab-footer"><span>標準調弦 · 4/4</span><span>示範譜例，非完整歌曲譜面</span></div>
+        </div>
+        <aside class="tools-panel panel">
+          <div class="eyebrow">PRACTICE TOOLS</div><h3>練習控制</h3>
+          <div class="tool-row"><div><span class="tool-icon">♩</span><span>節拍速度</span></div><strong id="bpmValue">120 BPM</strong></div>
+          <input id="bpmSlider" type="range" min="40" max="220" value="120">
+          <div class="range-labels"><span>40</span><span>220</span></div>
+          <div class="tool-row loop-row"><div><span class="tool-icon">↻</span><span>段落循環</span></div><label class="switch"><input id="loopToggle" type="checkbox"><span></span></label></div>
+          <div id="loopStatus" class="tool-description">循環功能預覽，播放同步將於後續版本加入。</div>
+          <div class="tool-divider"></div>
+          <div class="tool-row"><div><span class="tool-icon">⌁</span><span>調弦</span></div><strong>Standard</strong></div>
+          <div class="tuning"><span>E</span><span>A</span><span>D</span><span>G</span><span>B</span><span>E</span></div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="compare panel" id="about">
+      <div class="compare-copy"><div class="eyebrow">03 — NEXT UP</div><h2>不只找到譜，<br><em>還要找到對的譜。</em></h2><p>下一階段將加入候選版本比較，分析調弦、和弦、音符與節奏差異。真正的音樂準確度需要音訊分析，搜尋結果排序不會冒充成準確度分數。</p></div>
+      <div class="compare-visual"><div class="compare-card card-one"><span>VERSION A</span><b>Standard Tuning</b><small>來源：外部譜站</small><div class="mini-bars"><i></i><i></i><i></i><i></i><i></i></div></div><div class="compare-card card-two"><span>VERSION B</span><b>Half-step Down</b><small>來源：外部譜站</small><div class="mini-bars"><i></i><i></i><i></i><i></i><i></i></div></div><div class="compare-center">VS</div></div>
+    </section>
+    <footer><a class="brand footer-brand" href="#"><span class="brand-mark">G<span>↗</span></span><span>GUITAR<span class="brand-light">SYNC</span><small>THE GUITAR WORKSPACE</small></span></a><span>BUILT FOR THE LOVE OF PLAYING.</span><span>© 2026 GUITARSYNC</span></footer>
+  </main>
+  <div id="toast" class="toast" role="status"></div>
+  <script src="app.js"></script>
+</body>
+</html>
