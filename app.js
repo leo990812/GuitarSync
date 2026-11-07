@@ -13,7 +13,7 @@ function detail(song){
  if(!tracks.childNodes.length){const chip=document.createElement("span");chip.textContent="API 未提供音軌資訊";tracks.append(chip)}
  const note=document.createElement("p");note.className="tab-source-notice";note.textContent="這是 Songsterr 公開 API 的曲目資料，不包含 TAB 音符內容。Songsterr 沒有提供可供本站直接顯示完整譜面的公開授權 API，因此不會把外站頁面假裝成本站譜面。";
  const actions=document.createElement("div");actions.className="detail-actions";
- const use=document.createElement("button");use.className="primary-btn";use.type="button";use.textContent="在工作台建立自己的 TAB";
+ const use=document.createElement("button");use.className="primary-btn";use.type="button";use.textContent="前往播放器載入譜面";
  use.addEventListener("click",()=>{document.querySelector("#tabName").value=val(song.title,"Untitled TAB");document.querySelector("#tabTitle").textContent=val(song.title,"Untitled TAB");document.querySelector("#workspace").scrollIntoView({behavior:"smooth"});notify("歌曲名稱已帶入，請匯入或輸入可使用的譜面")});
  const link=document.createElement("a");link.className="source-link";link.href="https://www.songsterr.com/a/wa/song?id="+encodeURIComponent(song.id);link.target="_blank";link.rel="noopener noreferrer";link.textContent="前往官方來源（選用） ↗";
  actions.append(use,link);p.append(head,artist,label,tracks,note,actions);results.replaceChildren(p);
