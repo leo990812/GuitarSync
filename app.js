@@ -15,8 +15,8 @@ function detail(song){
  const actions=document.createElement("div");actions.className="detail-actions";
  const use=document.createElement("button");use.className="primary-btn";use.type="button";use.textContent="前往播放器載入譜面";
  use.addEventListener("click",()=>{document.querySelector("#scorePlayer").scrollIntoView({behavior:"smooth"});document.querySelector("#scoreFile").click();notify("請選擇這首歌曲的合法譜面檔案")});
- const link=document.createElement("a");link.className="source-link";link.href="https://www.songsterr.com/a/wa/song?id="+encodeURIComponent(song.id);link.target="_blank";link.rel="noopener noreferrer";link.textContent="前往官方來源（選用） ↗";
- actions.append(use,link);p.append(head,artist,label,tracks,note,actions);results.replaceChildren(p);
+
+ actions.append(use);p.append(head,artist,label,tracks,note,actions);results.replaceChildren(p);
 }
 async function search(query,kind){
  message("正在搜尋曲目…","正在取得 Songsterr 公開曲目資料。");
