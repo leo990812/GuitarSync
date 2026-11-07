@@ -36,3 +36,23 @@
 
 /* In-app search result detail */
 .in-app-result{margin-top:auto;background:#202a1b;border:1px solid #506139;border-radius:6px;color:#d5f39c;padding:10px;font-size:10px;cursor:pointer;text-align:left}.in-app-result:hover{background:#2b3922}.song-detail{padding:20px;margin-top:12px}.song-artist{font-size:11px;color:#aab5c2}.detail-label{display:block;font-size:10px;margin:18px 0 8px}.track-chips{display:flex;gap:7px;flex-wrap:wrap}.track-chips span{font-size:10px;padding:7px 10px;border:1px solid #3b4935;border-radius:5px;color:#cce79d}.tab-source-notice{font-size:10px;line-height:1.8;color:#9aa5b4;background:#0b1017;border-left:2px solid #c7f36b;padding:12px;margin:18px 0}.detail-actions{display:flex;align-items:center;gap:16px;flex-wrap:wrap}.detail-actions .primary-btn{padding:12px 15px}.source-link{font-size:10px;color:#aeb8c5;text-decoration:underline}
+
+
+/* REAL SCORE PLAYER */
+.score-player{padding:24px;margin-bottom:22px;min-width:0}
+.score-toolbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.score-upload-btn{display:inline-flex;align-items:center;justify-content:center;min-height:39px;padding:0 14px;background:var(--lime);color:#12170b;border-radius:6px;font-size:10px;font-weight:800;cursor:pointer}
+.score-upload-btn input{display:none}
+.score-track-label{display:flex;align-items:center;gap:8px;color:#8e9aaa;font-size:10px}
+.score-track-label select{height:38px;min-width:150px;max-width:220px;background:#090d13;border:1px solid #303947;border-radius:5px;color:#dce3ec;padding:0 9px;font-size:10px}
+.score-toolbar .ghost-btn{margin:0;padding:10px 14px}
+.score-toolbar button:disabled,.score-track-label select:disabled{opacity:.45;cursor:not-allowed}
+.score-speed-row{display:grid;grid-template-columns:auto minmax(100px,220px) 42px 1fr;align-items:center;gap:12px;margin:17px 0;color:#aab5c2;font-size:10px}
+.score-speed-row input{margin:0}
+.score-speed-row strong{font:10px "DM Mono";color:var(--lime)}
+.score-speed-row span{color:#7f8a9a;line-height:1.5}
+.alpha-viewport{max-height:660px;overflow:auto;background:#f5f3ed;color:#171717;border-radius:7px;padding:20px;min-height:150px}
+#alphaTab{min-width:650px;color:#171717}
+#alphaTab svg{max-width:none}
+.score-footnote{font-size:9px;line-height:1.7;color:#778394;margin:12px 0 0}
+@media(max-width:760px){.score-player{padding:16px}.score-speed-row{grid-template-columns:auto 1fr 42px}.score-speed-row span{grid-column:1/-1}.alpha-viewport{padding:10px;max-height:520px}#alphaTab{min-width:600px}.score-track-label{width:100%;justify-content:space-between}.score-track-label select{flex:1;max-width:none}}
