@@ -11,8 +11,7 @@ function detail(song){
  const tracks=document.createElement("div");tracks.className="track-chips";
  (song.tracks||[]).forEach(t=>{const chip=document.createElement("span");chip.textContent=[t.instrument,t.name].filter(Boolean).join(" · ")||val(t);tracks.append(chip)});
  if(!tracks.childNodes.length){const chip=document.createElement("span");chip.textContent="API 未提供音軌資訊";tracks.append(chip)}
- const note=document.createElement("p");note.className="tab-source-notice";note.textContent="這是 Songsterr 公開 API 的曲目資料，不包含 TAB 音符內容。Songsterr 沒有提供可供本站直接顯示完整譜面的公開授權 API，因此不會把外站頁面假裝成本站譜面。";
- note.textContent="目前搜尋來源只提供歌曲與音軌資料，沒有回傳可直接顯示的 TAB 音符。這筆結果尚不能在本站播放；本機匯入 GP 是另一項手動功能，不代表線上譜面已取得。";
+ const note=document.createElement("p");note.className="tab-source-notice";note.textContent="目前搜尋來源只提供歌曲與音軌資料，沒有回傳可直接顯示的 TAB 音符。這筆結果尚不能在本站播放；本機匯入 GP 是另一項手動功能，不代表線上譜面已取得。";
  p.append(head,artist,label,tracks,note);results.replaceChildren(p);
 }
 async function search(query,kind){
@@ -37,9 +36,9 @@ async function search(query,kind){
  const all=Array.isArray(data)?data:(data.songs||data.results||[]);
  const songs=kind==="bass"?all.filter(song=>(song.tracks||[]).some(t=>/bass/i.test([t.instrument?.name||t.instrument,t.name,t.trackName].filter(Boolean).join(" ")))):all;
  if(!songs.length){message("沒有找到符合的曲目","請試試英文歌名或藝人名稱。");return}
- const head=document.createElement("div");head.className="results-toolbar";const label=document.createElement("strong");label.textContent="搜尋結果："+query;const count=document.createElement("small");count.textContent=songs.length+" TRACKS";head.append(label,count);
+ const head=document.createElement("div");head.className="results-toolbar";const label=document.createElement("strong");label.textContent="搜尋結果："+query;const count=document.createElement("small");count.textContent=songs.length+" SONGS";head.append(label,count);
  const grid=document.createElement("div");grid.className="result-grid";
- songs.forEach(song=>{const card=document.createElement("article");card.className="result-card";const name=document.createElement("strong");name.textContent=val(song.title,"未知歌曲");const artist=document.createElement("small");artist.textContent=val(song.artist?.name||song.artist,"未知演出者");const ts=document.createElement("small");ts.textContent=(song.tracks||[]).map(t=>t.instrument||t.name).filter(Boolean).join(" · ")||"音軌資訊未提供";const btn=document.createElement("button");btn.type="button";btn.className="in-app-result";btn.textContent="在 GuitarSync 查看";btn.addEventListener("click",()=>detail(song));card.append(name,artist,ts,btn);grid.append(card)});
+ songs.forEach(song=>{const card=document.createElement("article");card.className="result-card";const name=document.createElement("strong");name.textContent=val(song.title,"未知歌曲");const artist=document.createElement("small");artist.textContent=val(song.artist?.name||song.artist,"未知演出者");const ts=document.createElement("small");ts.textContent=(song.tracks||[]).map(t=>t.instrument||t.name).filter(Boolean).join(" · ")||"音軌資訊未提供";const btn=document.createElement("button");btn.type="button";btn.className="in-app-result";btn.textContent="查看曲目資料";btn.addEventListener("click",()=>detail(song));card.append(name,artist,ts,btn);grid.append(card)});
  results.replaceChildren(head,grid);
 }
 form.addEventListener("submit",e=>{e.preventDefault();const q=input.value.trim();if(q)search(q,instrument.value==="bass"?"bass":"guitar")});
@@ -91,7 +90,7 @@ document.querySelector("#timeSignature").addEventListener("change",()=>beat=0);w
      },
      display:{layoutMode:"page",scale:1},
      player:{
-       enablePlayer:true,
+       playerMode:window.alphaTab.PlayerMode.EnabledSynthesizer,
        enableCursor:true,
        soundFont:"https://cdn.jsdelivr.net/npm/@coderline/alphatab@latest/dist/soundfont/sonivox.sf2",
        scrollElement:document.querySelector(".alpha-viewport")
@@ -123,7 +122,10 @@ document.querySelector("#timeSignature").addEventListener("change",()=>beat=0);w
  api.playerReady.on(()=>{
    playerReady=true;
    if(loaded){playButton.disabled=false;stopButton.disabled=false;}
-   setStatus(status.textContent+" 播放器已就緒。");
+   if(!status.textContent.includes("播放器已就緒"))setStatus(status.textContent+" 播放器已就緒。");
+ });
+ api.playerStateChanged.on(state=>{
+   playButton.textContent=state.state===window.alphaTab.synth.PlayerState.Playing?"暫停":"播放";
  });
 
  api.error.on(error=>{
@@ -148,11 +150,14 @@ document.querySelector("#timeSignature").addEventListener("change",()=>beat=0);w
      if(!accepted)throw new Error("這個檔案格式無法辨識。");
    }catch(error){
      setStatus("無法載入："+(error.message||String(error)));
+   }finally{
+     // Let users retry the same file after a successful load or a parse error.
+     fileInput.value="";
    }
  });
  playButton.addEventListener("click",()=>{
    if(!loaded)return;
-   try{api.playPause();playButton.textContent=playButton.textContent==="播放"?"暫停":"播放";}catch(error){setStatus("無法播放："+(error.message||String(error)));}
+   try{api.playPause();}catch(error){setStatus("無法播放："+(error.message||String(error)));}
  });
  stopButton.addEventListener("click",()=>{if(loaded)api.stop();playButton.textContent="播放";});
  const loopControl=document.getElementById("loopToggle");
@@ -169,3 +174,4 @@ document.querySelector("#timeSignature").addEventListener("change",()=>beat=0);w
  });
  window.addEventListener("pagehide",()=>api?.destroy(),{once:true});
 })();
+
