@@ -12,11 +12,8 @@ function detail(song){
  (song.tracks||[]).forEach(t=>{const chip=document.createElement("span");chip.textContent=[t.instrument,t.name].filter(Boolean).join(" · ")||val(t);tracks.append(chip)});
  if(!tracks.childNodes.length){const chip=document.createElement("span");chip.textContent="API 未提供音軌資訊";tracks.append(chip)}
  const note=document.createElement("p");note.className="tab-source-notice";note.textContent="這是 Songsterr 公開 API 的曲目資料，不包含 TAB 音符內容。Songsterr 沒有提供可供本站直接顯示完整譜面的公開授權 API，因此不會把外站頁面假裝成本站譜面。";
- const actions=document.createElement("div");actions.className="detail-actions";
- const use=document.createElement("button");use.className="primary-btn";use.type="button";use.textContent="前往播放器載入譜面";
- use.addEventListener("click",()=>{document.querySelector("#scorePlayer").scrollIntoView({behavior:"smooth"});document.querySelector("#scoreFile").click();notify("請選擇這首歌曲的合法譜面檔案")});
-
- actions.append(use);p.append(head,artist,label,tracks,note,actions);results.replaceChildren(p);
+ note.textContent="目前搜尋來源只提供歌曲與音軌資料，沒有回傳可直接顯示的 TAB 音符。這筆結果尚不能在本站播放；本機匯入 GP 是另一項手動功能，不代表線上譜面已取得。";
+ p.append(head,artist,label,tracks,note);results.replaceChildren(p);
 }
 async function search(query,kind){
  message("正在搜尋曲目…","正在連線取得 Songsterr 公開曲目資料。");
