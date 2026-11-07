@@ -3,17 +3,6 @@ let timer,ctx,metro,beat=0,metroOn=false,searchRevision=0;const demo=editor.valu
 function notify(t){toast.textContent=t;toast.classList.add("show");clearTimeout(timer);timer=setTimeout(()=>toast.classList.remove("show"),2300)}
 function val(v,f="未提供"){return v==null||v===""?f:String(v)}
 function message(title,detail){const box=document.createElement("div");box.className="empty-state";const h=document.createElement("strong");h.textContent=title;const p=document.createElement("small");p.textContent=detail;box.append(h,p);results.replaceChildren(box)}
-function detail(song){
- const p=document.createElement("article");p.className="song-detail panel";const head=document.createElement("div");head.className="results-toolbar";
- const title=document.createElement("strong");title.textContent=val(song.title,"未知歌曲");const tag=document.createElement("small");tag.textContent="SONGSTERR CATALOGUE";head.append(title,tag);
- const artist=document.createElement("p");artist.className="song-artist";artist.textContent="演出者："+val(song.artist?.name||song.artist);
- const label=document.createElement("strong");label.className="detail-label";label.textContent="可用音軌";
- const tracks=document.createElement("div");tracks.className="track-chips";
- (song.tracks||[]).forEach(t=>{const chip=document.createElement("span");chip.textContent=[t.instrument,t.name].filter(Boolean).join(" · ")||val(t);tracks.append(chip)});
- if(!tracks.childNodes.length){const chip=document.createElement("span");chip.textContent="API 未提供音軌資訊";tracks.append(chip)}
- const note=document.createElement("p");note.className="tab-source-notice";note.textContent="目前搜尋來源只提供歌曲與音軌資料，沒有回傳可直接顯示的 TAB 音符。這筆結果尚不能在本站播放；本機匯入 GP 是另一項手動功能，不代表線上譜面已取得。";
- p.append(head,artist,label,tracks,note);results.replaceChildren(p);
-}
 async function search(query,kind){
  const revision=++searchRevision;
  message("正在搜尋曲目…","正在連線取得 Songsterr 公開曲目資料。");
@@ -42,7 +31,7 @@ async function search(query,kind){
  if(!songs.length){message("沒有找到符合的曲目","找不到包含所選樂器音軌的曲目，請試試英文歌名或藝人名稱。");return}
  const head=document.createElement("div");head.className="results-toolbar";const label=document.createElement("strong");label.textContent="搜尋結果："+query;const count=document.createElement("small");count.textContent=songs.length+" SONGS";head.append(label,count);
  const grid=document.createElement("div");grid.className="result-grid";
- songs.forEach(song=>{const card=document.createElement("article");card.className="result-card";const name=document.createElement("strong");name.textContent=val(song.title,"未知歌曲");const artist=document.createElement("small");artist.textContent=val(song.artist?.name||song.artist,"未知演出者");const ts=document.createElement("small");ts.textContent=(song.tracks||[]).map(t=>t.instrument||t.name).filter(Boolean).join(" · ")||"音軌資訊未提供";const btn=document.createElement("button");btn.type="button";btn.className="in-app-result";btn.textContent="查看曲目資料";btn.addEventListener("click",()=>detail(song));card.append(name,artist,ts,btn);grid.append(card)});
+ songs.forEach(song=>{const card=document.createElement("article");card.className="result-card";const name=document.createElement("strong");name.textContent=val(song.title,"未知歌曲");const artist=document.createElement("small");artist.textContent=val(song.artist?.name||song.artist,"未知演出者");const ts=document.createElement("small");ts.textContent=(song.tracks||[]).map(t=>t.instrument||t.name).filter(Boolean).join(" · ")||"音軌資訊未提供";const link=document.createElement("a");link.className="tab-source-link";link.target="_blank";link.rel="noopener noreferrer";link.textContent="開啟實際 TAB（Songsterr） ↗";const songId=song.id??song.songId;link.href=songId!=null?"https://www.songsterr.com/a/wsa/song-tab-s"+encodeURIComponent(String(songId)):"https://www.songsterr.com/?pattern="+encodeURIComponent([song.title,song.artist?.name||song.artist].filter(Boolean).join(" "));link.setAttribute("aria-label","在 Songsterr 官方播放器開啟 "+[song.title,song.artist?.name||song.artist].filter(Boolean).join(" - "));card.append(name,artist,ts,link);grid.append(card)});
  results.replaceChildren(head,grid);
 }
 form.addEventListener("submit",e=>{e.preventDefault();const q=input.value.trim();if(q)search(q,instrument.value==="bass"?"bass":"guitar")});
