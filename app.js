@@ -19,18 +19,31 @@ function detail(song){
  actions.append(use);p.append(head,artist,label,tracks,note,actions);results.replaceChildren(p);
 }
 async function search(query,kind){
- message("正在搜尋曲目…","正在取得 Songsterr 公開曲目資料。");
- try{
-  const res=await fetch("https://www.songsterr.com/api/songs?pattern="+encodeURIComponent(query)+"&size=20",{headers:{Accept:"application/json"}});
-  if(!res.ok)throw Error("HTTP "+res.status);
-  const data=await res.json();const all=Array.isArray(data)?data:(data.songs||data.results||[]);
-  const songs=kind==="bass"?all.filter(song=>(song.tracks||[]).some(t=>/bass/i.test([t.instrument?.name||t.instrument,t.name,t.trackName].filter(Boolean).join(" ")))):all;
-  if(!songs.length){message("沒有找到符合的曲目","請試試英文歌名或藝人名稱。");return}
-  const head=document.createElement("div");head.className="results-toolbar";const label=document.createElement("strong");label.textContent="搜尋結果："+query;const count=document.createElement("small");count.textContent=songs.length+" TRACKS";head.append(label,count);
-  const grid=document.createElement("div");grid.className="result-grid";
-  songs.forEach(song=>{const card=document.createElement("article");card.className="result-card";const name=document.createElement("strong");name.textContent=val(song.title,"未知歌曲");const artist=document.createElement("small");artist.textContent=val(song.artist?.name||song.artist,"未知演出者");const ts=document.createElement("small");ts.textContent=(song.tracks||[]).map(t=>t.instrument||t.name).filter(Boolean).join(" · ")||"音軌資訊未提供";const btn=document.createElement("button");btn.type="button";btn.className="in-app-result";btn.textContent="在 GuitarSync 查看";btn.addEventListener("click",()=>detail(song));card.append(name,artist,ts,btn);grid.append(card)});
-  results.replaceChildren(head,grid);
- }catch(e){message("目前無法取得線上曲目資料","Songsterr API 連線失敗或受到瀏覽器跨網域限制。這次不會自動跳轉外站，請稍後重試。")}
+ message("正在搜尋曲目…","正在連線取得 Songsterr 公開曲目資料。");
+ const target="https://www.songsterr.com/api/songs?pattern="+encodeURIComponent(query)+"&size=20";
+ let lastError=null,data=null,source="";
+ // Songsterr's catalogue endpoint is readable server-to-server but may block browser CORS.
+ // Try direct first, then a public GET-only CORS relay for this non-sensitive metadata request.
+ for(const url of [target,"https://proxy.cors.dev/"+target]){
+  try{
+   const res=await fetch(url,{headers:{Accept:"application/json"}});
+   if(!res.ok)throw Error("HTTP "+res.status);
+   const parsed=await res.json();
+   if(!Array.isArray(parsed)&&!Array.isArray(parsed?.songs)&&!Array.isArray(parsed?.results))throw Error("API 回傳格式不正確");
+   data=parsed;source=url===target?"Songsterr":"proxy";break;
+  }catch(error){lastError=error}
+ }
+ if(!data){
+  message("目前無法取得線上曲目資料","Songsterr 直連與備援連線都失敗。可能是來源暫時無回應、代理服務限制或網路問題。錯誤："+(lastError?.message||"未知錯誤"));
+  return;
+ }
+ const all=Array.isArray(data)?data:(data.songs||data.results||[]);
+ const songs=kind==="bass"?all.filter(song=>(song.tracks||[]).some(t=>/bass/i.test([t.instrument?.name||t.instrument,t.name,t.trackName].filter(Boolean).join(" ")))):all;
+ if(!songs.length){message("沒有找到符合的曲目","請試試英文歌名或藝人名稱。");return}
+ const head=document.createElement("div");head.className="results-toolbar";const label=document.createElement("strong");label.textContent="搜尋結果："+query;const count=document.createElement("small");count.textContent=songs.length+" TRACKS";head.append(label,count);
+ const grid=document.createElement("div");grid.className="result-grid";
+ songs.forEach(song=>{const card=document.createElement("article");card.className="result-card";const name=document.createElement("strong");name.textContent=val(song.title,"未知歌曲");const artist=document.createElement("small");artist.textContent=val(song.artist?.name||song.artist,"未知演出者");const ts=document.createElement("small");ts.textContent=(song.tracks||[]).map(t=>t.instrument||t.name).filter(Boolean).join(" · ")||"音軌資訊未提供";const btn=document.createElement("button");btn.type="button";btn.className="in-app-result";btn.textContent="在 GuitarSync 查看";btn.addEventListener("click",()=>detail(song));card.append(name,artist,ts,btn);grid.append(card)});
+ results.replaceChildren(head,grid);
 }
 form.addEventListener("submit",e=>{e.preventDefault();const q=input.value.trim();if(q)search(q,instrument.value==="bass"?"bass":"guitar")});
 const bpm=document.querySelector("#bpmSlider");bpm.addEventListener("input",()=>{document.querySelector("#bpmValue").textContent=bpm.value+" BPM";if(metroOn)restartMetro()});
