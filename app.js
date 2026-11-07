@@ -53,3 +53,95 @@ function restartMetro(){clearInterval(metro);metro=setInterval(tick,60000/Number
 function stopMetro(){clearInterval(metro);metro=null;metroOn=false;document.querySelector("#metronomeToggle").textContent="啟動節拍器"}
 document.querySelector("#metronomeToggle").addEventListener("click",()=>{if(metroOn){stopMetro();return}metroOn=true;beat=0;tick();restartMetro();document.querySelector("#metronomeToggle").textContent="停止節拍器"});
 document.querySelector("#timeSignature").addEventListener("change",()=>beat=0);window.addEventListener("pagehide",stopMetro);refresh();validate();
+
+
+// GUITARSYNC_ALPHA_TAB_ENGINE
+// Real notation renderer/player. It reads user-supplied score files locally.
+(function initGuitarSyncScorePlayer(){
+ const host=document.getElementById("alphaTab");
+ if(!host)return;
+ const fileInput=document.getElementById("scoreFile");
+ const trackSelect=document.getElementById("scoreTrack");
+ const playButton=document.getElementById("scorePlay");
+ const stopButton=document.getElementById("scoreStop");
+ const speed=document.getElementById("scoreSpeed");
+ const speedValue=document.getElementById("scoreSpeedValue");
+ const status=document.getElementById("scoreStatus");
+ const setStatus=(text)=>{status.textContent=text};
+ if(!window.alphaTab||!window.alphaTab.AlphaTabApi){
+   setStatus("譜面引擎載入失敗。請確認網路可連線至 jsDelivr，然後重新整理頁面。");
+   return;
+ }
+ let api;
+ try{
+   api=new window.alphaTab.AlphaTabApi(host,{
+     core:{
+       fontDirectory:"https://cdn.jsdelivr.net/npm/@coderline/alphatab@latest/dist/font/"
+     },
+     display:{layoutMode:"page",scale:1},
+     player:{
+       enablePlayer:true,
+       enableCursor:true,
+       soundFont:"https://cdn.jsdelivr.net/npm/@coderline/alphatab@latest/dist/soundfont/sonivox.sf2",
+       scrollElement:".alpha-viewport"
+     }
+   });
+ }catch(error){
+   setStatus("譜面引擎初始化失敗："+(error.message||String(error)));
+   return;
+ }
+ let loaded=false;
+ api.scoreLoaded.on(score=>{
+   loaded=true;
+   trackSelect.replaceChildren();
+   (score.tracks||[]).forEach((track,index)=>{
+     const option=document.createElement("option");
+     option.value=String(index);
+     option.textContent=(track.name||("音軌 "+(index+1)))+(track.staves?.[0]?.tuning?"":"");
+     trackSelect.append(option);
+   });
+   trackSelect.disabled=(score.tracks||[]).length===0;
+   playButton.disabled=false;
+   stopButton.disabled=false;
+   speed.disabled=false;
+   setStatus("已載入："+(score.title||"未命名曲目")+" · "+(score.tracks||[]).length+" 條音軌。譜面已在本站顯示。");
+ });
+ api.playerReady.on(()=>setStatus(status.textContent+" 播放器已就緒。"));
+ api.playerStateChanged.on(event=>{
+   const state=String(event.state);
+   playButton.textContent=/Playing/i.test(state)?"暫停":"播放";
+ });
+ api.error.on(error=>{
+   const detail=error?.message||error?.toString?.()||"未知錯誤";
+   setStatus("譜面處理失敗："+detail+"。請確認檔案格式受支援且檔案沒有損毀。");
+ });
+ fileInput.addEventListener("change",async()=>{
+   const file=fileInput.files?.[0];
+   if(!file)return;
+   if(file.size>40*1024*1024){setStatus("檔案過大，請使用 40 MB 以下的譜面檔。");fileInput.value="";return;}
+   setStatus("正在讀取並解析 "+file.name+" …");
+   try{
+     const bytes=new Uint8Array(await file.arrayBuffer());
+     const accepted=api.load(bytes);
+     if(!accepted)throw new Error("這個檔案格式無法辨識。");
+   }catch(error){
+     setStatus("無法載入："+(error.message||String(error)));
+   }
+ });
+ playButton.addEventListener("click",()=>{
+   if(!loaded)return;
+   try{api.playPause();}catch(error){setStatus("無法播放："+(error.message||String(error)));}
+ });
+ stopButton.addEventListener("click",()=>{if(loaded)api.stop();playButton.textContent="播放";});
+ speed.addEventListener("input",()=>{
+   const value=Number(speed.value);
+   speedValue.textContent=value+"%";
+   if(api)api.playbackSpeed=value;
+ });
+ trackSelect.addEventListener("change",()=>{
+   if(!loaded)return;
+   const track=api.score.tracks[Number(trackSelect.value)];
+   if(track)api.renderTracks([track]);
+ });
+ window.addEventListener("pagehide",()=>api?.destroy(),{once:true});
+})();
