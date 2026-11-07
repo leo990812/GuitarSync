@@ -60,7 +60,7 @@ document.querySelector("#timeSignature").addEventListener("change",()=>beat=0);w
 (function initGuitarSyncScorePlayer(){
  const host=document.getElementById("alphaTab");
  if(!host)return;
- const fileInput=document.getElementById("scoreFile");
+ const fileInput=document.getElementById("scoreFile");\n const demoButton=document.getElementById("scoreDemo");
  const trackSelect=document.getElementById("scoreTrack");
  const playButton=document.getElementById("scorePlay");
  const stopButton=document.getElementById("scoreStop");
@@ -114,6 +114,17 @@ document.querySelector("#timeSignature").addEventListener("change",()=>beat=0);w
  api.error.on(error=>{
    const detail=error?.message||error?.toString?.()||"未知錯誤";
    setStatus("譜面處理失敗："+detail+"。請確認檔案格式受支援且檔案沒有損毀。");
+ });
+ demoButton.addEventListener("click",async()=>{
+   setStatus("正在載入 alphaTab 官方示範 Guitar Pro 檔案…");
+   try{
+     const response=await fetch("https://www.alphatab.net/files/iron-waltz.gp");
+     if(!response.ok)throw new Error("示範檔下載失敗（HTTP "+response.status+"）");
+     const bytes=new Uint8Array(await response.arrayBuffer());
+     if(!api.load(bytes))throw new Error("示範檔格式無法辨識");
+   }catch(error){
+     setStatus("示範譜載入失敗："+(error.message||String(error))+"。你仍可使用上方按鈕匯入自己的譜面檔。");
+   }
  });
  fileInput.addEventListener("change",async()=>{
    const file=fileInput.files?.[0];
