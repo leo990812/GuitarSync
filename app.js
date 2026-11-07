@@ -1,5 +1,5 @@
 const form=document.querySelector("#searchForm"),input=document.querySelector("#songInput"),instrument=document.querySelector("#instrument"),results=document.querySelector("#searchResults"),editor=document.querySelector("#tabEditor"),toast=document.querySelector("#toast");
-let timer,ctx,metro,beat=0,metroOn=false;const demo=editor.value;
+let timer,ctx,metro,beat=0,metroOn=false,searchRevision=0;const demo=editor.value;
 function notify(t){toast.textContent=t;toast.classList.add("show");clearTimeout(timer);timer=setTimeout(()=>toast.classList.remove("show"),2300)}
 function val(v,f="未提供"){return v==null||v===""?f:String(v)}
 function message(title,detail){const box=document.createElement("div");box.className="empty-state";const h=document.createElement("strong");h.textContent=title;const p=document.createElement("small");p.textContent=detail;box.append(h,p);results.replaceChildren(box)}
@@ -15,27 +15,31 @@ function detail(song){
  p.append(head,artist,label,tracks,note);results.replaceChildren(p);
 }
 async function search(query,kind){
+ const revision=++searchRevision;
  message("正在搜尋曲目…","正在連線取得 Songsterr 公開曲目資料。");
  const target="https://www.songsterr.com/api/songs?pattern="+encodeURIComponent(query)+"&size=20";
- let lastError=null,data=null,source="";
+ let lastError=null,data=null;
  // Songsterr's catalogue endpoint is readable server-to-server but may block browser CORS.
  // Try direct first, then a public GET-only CORS relay for this non-sensitive metadata request.
  for(const url of [target,"https://proxy.cors.dev/"+target]){
+  if(revision!==searchRevision)return;
   try{
    const res=await fetch(url,{headers:{Accept:"application/json"}});
    if(!res.ok)throw Error("HTTP "+res.status);
    const parsed=await res.json();
    if(!Array.isArray(parsed)&&!Array.isArray(parsed?.songs)&&!Array.isArray(parsed?.results))throw Error("API 回傳格式不正確");
-   data=parsed;source=url===target?"Songsterr":"proxy";break;
+   data=parsed;break;
   }catch(error){lastError=error}
  }
+ if(revision!==searchRevision)return;
  if(!data){
   message("目前無法取得線上曲目資料","Songsterr 直連與備援連線都失敗。可能是來源暫時無回應、代理服務限制或網路問題。錯誤："+(lastError?.message||"未知錯誤"));
   return;
  }
  const all=Array.isArray(data)?data:(data.songs||data.results||[]);
- const songs=kind==="bass"?all.filter(song=>(song.tracks||[]).some(t=>/bass/i.test([t.instrument?.name||t.instrument,t.name,t.trackName].filter(Boolean).join(" ")))):all;
- if(!songs.length){message("沒有找到符合的曲目","請試試英文歌名或藝人名稱。");return}
+ const instrumentPattern=kind==="bass"?/bass/i:/guitar/i;
+ const songs=all.filter(song=>(song.tracks||[]).some(track=>instrumentPattern.test([track.instrument?.name||track.instrument,track.name,track.trackName].filter(Boolean).join(" "))));
+ if(!songs.length){message("沒有找到符合的曲目","找不到包含所選樂器音軌的曲目，請試試英文歌名或藝人名稱。");return}
  const head=document.createElement("div");head.className="results-toolbar";const label=document.createElement("strong");label.textContent="搜尋結果："+query;const count=document.createElement("small");count.textContent=songs.length+" SONGS";head.append(label,count);
  const grid=document.createElement("div");grid.className="result-grid";
  songs.forEach(song=>{const card=document.createElement("article");card.className="result-card";const name=document.createElement("strong");name.textContent=val(song.title,"未知歌曲");const artist=document.createElement("small");artist.textContent=val(song.artist?.name||song.artist,"未知演出者");const ts=document.createElement("small");ts.textContent=(song.tracks||[]).map(t=>t.instrument||t.name).filter(Boolean).join(" · ")||"音軌資訊未提供";const btn=document.createElement("button");btn.type="button";btn.className="in-app-result";btn.textContent="查看曲目資料";btn.addEventListener("click",()=>detail(song));card.append(name,artist,ts,btn);grid.append(card)});
@@ -51,16 +55,16 @@ document.querySelector("#tabTuning").addEventListener("change",e=>document.query
 document.querySelector("#loadDemo").addEventListener("click",()=>{editor.value=demo;document.querySelector("#tabName").value="Example Riff";document.querySelector("#tabTitle").textContent="Example Riff";validate();notify("已載入示範 TAB")});
 document.querySelector("#clearTab").addEventListener("click",()=>{editor.value="";validate();notify("編輯器已清空")});
 document.querySelector("#copyTab").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(editor.value);notify("TAB 已複製")}catch{editor.focus();editor.select();notify("請按 Ctrl+C 複製")}});
-document.querySelector("#tabFile").addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;if(f.size>1048576){notify("檔案需小於 1 MB");return}editor.value=await f.text();document.querySelector("#tabName").value=f.name.replace(/\.(txt|tab)$/i,"");document.querySelector("#tabTitle").textContent=document.querySelector("#tabName").value;validate();notify("譜面已匯入")});
+document.querySelector("#tabFile").addEventListener("change",async e=>{const fileInput=e.currentTarget;const f=fileInput.files?.[0];if(!f)return;try{if(f.size>1048576){notify("檔案需小於 1 MB");return}editor.value=await f.text();document.querySelector("#tabName").value=f.name.replace(/\.(txt|tab)$/i,"");document.querySelector("#tabTitle").textContent=document.querySelector("#tabName").value||"Untitled TAB";validate();notify("譜面已匯入")}catch(error){notify("無法讀取檔案："+(error.message||String(error)))}finally{fileInput.value=""}});
 document.querySelector("#downloadTab").addEventListener("click",()=>{const u=URL.createObjectURL(new Blob([editor.value],{type:"text/plain;charset=utf-8"})),a=document.createElement("a");a.href=u;a.download=(document.querySelector("#tabName").value||"guitarsync-tab")+".txt";a.click();URL.revokeObjectURL(u);notify("已匯出 TXT")});
-function library(){try{return JSON.parse(localStorage.getItem("guitarsync-tabs")||"[]")}catch{return []}}
+function library(){try{const saved=JSON.parse(localStorage.getItem("guitarsync-tabs")||"[]");return Array.isArray(saved)?saved.filter(item=>item&&typeof item.name==="string"&&typeof item.text==="string"):[]}catch{return []}}
 function refresh(){const list=library(),sel=document.querySelector("#savedTabs");sel.replaceChildren(new Option("選擇已儲存譜面",""));list.forEach((x,i)=>sel.add(new Option(x.name+" · "+x.date,i)));document.querySelector("#savedCount").textContent=list.length+" 首"}
 document.querySelector("#saveTab").addEventListener("click",()=>{const name=document.querySelector("#tabName").value.trim()||"Untitled TAB",list=library(),item={name,text:editor.value,tuning:document.querySelector("#tabTuning").value,meter:document.querySelector("#timeSignature").value,date:new Date().toLocaleDateString("zh-TW")},at=list.findIndex(x=>x.name===name);if(at>=0)list[at]=item;else list.unshift(item);try{localStorage.setItem("guitarsync-tabs",JSON.stringify(list.slice(0,50)));refresh();document.querySelector("#tabState").textContent="已儲存於本機";notify("已儲存到本機譜面庫")}catch{notify("儲存空間不足，請匯出 TXT")}});
 document.querySelector("#savedTabs").addEventListener("change",e=>{if(e.target.value==="")return;const x=library()[Number(e.target.value)];if(!x)return;editor.value=x.text;document.querySelector("#tabName").value=x.name;document.querySelector("#tabTitle").textContent=x.name;document.querySelector("#tabTuning").value=x.tuning;document.querySelector("#timeSignature").value=x.meter;document.querySelector("#tabTuning").dispatchEvent(new Event("change"));validate();document.querySelector("#tabState").textContent="已從本機載入"});
-function tick(){if(!ctx)ctx=new(window.AudioContext||window.webkitAudioContext)();if(ctx.state==="suspended")ctx.resume();const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.value=beat===0?1100:760;g.gain.setValueAtTime(.0001,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.15,ctx.currentTime+.006);g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+.08);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+.09);document.querySelector("#beatNumber").textContent=beat+1;beat=(beat+1)%Number(document.querySelector("#timeSignature").value)}
+function tick(){const AudioContextClass=window.AudioContext||window.webkitAudioContext;if(!AudioContextClass)throw new Error("此瀏覽器不支援 Web Audio");if(!ctx)ctx=new AudioContextClass();if(ctx.state==="suspended")ctx.resume().catch(()=>notify("瀏覽器未允許播放節拍聲"));const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.value=beat===0?1100:760;g.gain.setValueAtTime(.0001,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.15,ctx.currentTime+.006);g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+.08);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+.09);document.querySelector("#beatNumber").textContent=beat+1;beat=(beat+1)%Number(document.querySelector("#timeSignature").value)}
 function restartMetro(){clearInterval(metro);metro=setInterval(tick,60000/Number(bpm.value))}
 function stopMetro(){clearInterval(metro);metro=null;metroOn=false;document.querySelector("#metronomeToggle").textContent="啟動節拍器"}
-document.querySelector("#metronomeToggle").addEventListener("click",()=>{if(metroOn){stopMetro();return}metroOn=true;beat=0;tick();restartMetro();document.querySelector("#metronomeToggle").textContent="停止節拍器"});
+document.querySelector("#metronomeToggle").addEventListener("click",()=>{if(metroOn){stopMetro();return}metroOn=true;beat=0;try{tick();restartMetro();document.querySelector("#metronomeToggle").textContent="停止節拍器"}catch(error){stopMetro();notify("節拍器啟動失敗："+(error.message||String(error)))}});
 document.querySelector("#timeSignature").addEventListener("change",()=>beat=0);window.addEventListener("pagehide",stopMetro);refresh();validate();
 
 

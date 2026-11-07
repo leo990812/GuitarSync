@@ -68,7 +68,7 @@
       </section>
       <div class="studio-layout">
         <div class="studio-main panel">
-          <div class="studio-toolbar"><div class="studio-file"><span class="live-dot"></span><div><strong id="tabTitle">My TAB</strong><small id="tabState">尚未儲存</small></div></div><div class="studio-actions"><button id="loadDemo" class="ghost-btn">載入範例</button><button id="saveTab" class="ghost-btn">儲存</button><button id="copyTab" class="ghost-btn">複製</button><button id="downloadTab" class="ghost-btn">匯出 .txt</button></div></div>
+      <div class="studio-toolbar"><div class="studio-file"><span class="live-dot"></span><div><strong id="tabTitle">My TAB</strong><small id="tabState">尚未儲存</small></div></div><div class="studio-actions"><button id="loadDemo" class="ghost-btn" type="button">載入範例</button><button id="saveTab" class="ghost-btn" type="button">儲存</button><button id="copyTab" class="ghost-btn" type="button">複製</button><button id="downloadTab" class="ghost-btn" type="button">匯出 .txt</button></div></div>
           <div class="tab-details"><label>歌曲名稱<input id="tabName" value="Example Riff" maxlength="80"></label><label>調弦<select id="tabTuning"><option value="E A D G B E">Standard · E A D G B E</option><option value="Eb Ab Db Gb Bb Eb">半音降弦 · Eb Ab Db Gb Bb Eb</option><option value="D A D G B E">Drop D · D A D G B E</option><option value="D G C F A D">全音降弦 · D G C F A D</option></select></label><label>拍號<select id="timeSignature"><option value="4">4/4</option><option value="3">3/4</option><option value="6">6/8</option></select></label></div>
           <div class="editor-heading"><span>譜面編輯器 <small>ASCII TAB</small></span><span id="lineCount">6 STRINGS</span></div>
           <textarea id="tabEditor" class="tab-editor" spellcheck="false">e|----------------|----------------|
@@ -78,10 +78,10 @@ D|----2-----2---2-|----4-----4---4-|
 A|--2---2-----2---|--4---4-----4---|
 E|0---------------|2---------------|</textarea>
           <div class="editor-footer"><span>貼上你有權使用的 TAB 文字，直接編輯</span><span id="tabValidation">等待編輯</span></div>
-          <div class="import-row"><label class="file-import">匯入 .txt 檔案<input id="tabFile" type="file" accept=".txt,.tab,text/plain"></label><button id="clearTab" class="ghost-btn">清空</button></div>
+          <div class="import-row"><label class="file-import">匯入 .txt 檔案<input id="tabFile" type="file" accept=".txt,.tab,text/plain"></label><button id="clearTab" class="ghost-btn" type="button">清空</button></div>
         </div>
         <aside class="tools-panel panel studio-tools"><div class="eyebrow">PRACTICE TOOLS</div><h3>練習控制</h3><div class="tool-row"><div><span class="tool-icon">♩</span><span>節拍速度</span></div><strong id="bpmValue">120 BPM</strong></div><input id="bpmSlider" type="range" min="40" max="220" value="120"><div class="range-labels"><span>40</span><span>220</span></div>
-          <div class="metronome-box"><div><strong id="beatNumber">1</strong><span>BEAT</span></div><button id="metronomeToggle" class="primary-btn">啟動節拍器</button></div>
+          <div class="metronome-box"><div><strong id="beatNumber">1</strong><span>BEAT</span></div><button id="metronomeToggle" class="primary-btn" type="button">啟動節拍器</button></div>
           <div class="tool-row loop-row"><div><span class="tool-icon">↻</span><span>段落循環</span></div><label class="switch"><input id="loopToggle" type="checkbox"><span></span></label></div><div id="loopStatus" class="tool-description">循環練習模式</div><div class="tool-divider"></div>
           <div class="tool-row"><div><span class="tool-icon">⌁</span><span>目前調弦</span></div><strong id="tuningLabel">Standard</strong></div><div class="tuning"><span>E</span><span>A</span><span>D</span><span>G</span><span>B</span><span>E</span></div><div class="tool-divider"></div>
           <div class="saved-tabs"><div class="tool-row"><span>本機譜面庫</span><strong id="savedCount">0 首</strong></div><select id="savedTabs"><option value="">選擇已儲存譜面</option></select><small>只儲存在目前瀏覽器，不會上傳伺服器。</small></div>
@@ -90,8 +90,8 @@ E|0---------------|2---------------|</textarea>
     </section>
 
     <section class="compare panel" id="about">
-      <div class="compare-copy"><div class="eyebrow">03 — NEXT UP</div><h2>不只找到譜，<br><em>還要找到對的譜。</em></h2><p>下一階段將加入候選版本比較，分析調弦、和弦、音符與節奏差異。真正的音樂準確度需要音訊分析，搜尋結果排序不會冒充成準確度分數。</p></div>
-      <div class="compare-visual"><div class="compare-card card-one"><span>VERSION A</span><b>Standard Tuning</b><small>來源：外部譜站</small><div class="mini-bars"><i></i><i></i><i></i><i></i><i></i></div></div><div class="compare-card card-two"><span>VERSION B</span><b>Half-step Down</b><small>來源：外部譜站</small><div class="mini-bars"><i></i><i></i><i></i><i></i><i></i></div></div><div class="compare-center">VS</div></div>
+      <div class="compare-copy"><div class="eyebrow">03 — SCORE COMPARISON</div><h2>比較前，<br><em>先確認譜面來源。</em></h2><p>目前沒有已授權、可供本站顯示的線上 TAB 來源，因此不會展示虛構的版本或準確度。你可以載入自己有權使用的 GP 或 MusicXML 譜面，在播放器中查看與練習。</p></div>
+      <div class="compare-visual"><div class="comparison-empty"><span class="eyebrow">尚未連接授權譜面來源</span><strong>目前沒有可驗證的線上版本</strong><small>搜尋結果只含曲目索引與音軌資料。</small><a href="#scorePlayer">前往譜面播放器 <b>↗</b></a></div></div>
     </section>
     <footer><a class="brand footer-brand" href="#"><span class="brand-mark">G<span>↗</span></span><span>GUITAR<span class="brand-light">SYNC</span><small>THE GUITAR WORKSPACE</small></span></a><span>BUILT FOR THE LOVE OF PLAYING.</span><span><a href="https://alphatab.net" target="_blank" rel="noopener">Notation &amp; playback: alphaTab</a> · © 2026 GUITARSYNC</span></footer>
   </main>
@@ -99,3 +99,4 @@ E|0---------------|2---------------|</textarea>
   <script src="https://cdn.jsdelivr.net/npm/@coderline/alphatab@latest/dist/alphaTab.min.js"></script>  <script src="app.js"></script>
 </body>
 </html>
+
