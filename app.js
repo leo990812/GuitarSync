@@ -1,82 +1,33 @@
-const form=document.querySelector("#searchForm");
-const input=document.querySelector("#songInput");
-const instrument=document.querySelector("#instrument");
-const results=document.querySelector("#searchResults");
-const toast=document.querySelector("#toast");
-let toastTimer;
-function notify(message){
-  toast.textContent=message;
-  toast.classList.add("show");
-  clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>toast.classList.remove("show"),2400);
-}
-function searchUrl(base,query){return base+encodeURIComponent(query)}
+const form=document.querySelector("#searchForm"),input=document.querySelector("#songInput"),instrument=document.querySelector("#instrument"),results=document.querySelector("#searchResults"),editor=document.querySelector("#tabEditor"),toast=document.querySelector("#toast");
+let timer,ctx,metro,beat=0,metroOn=false;const demo=editor.value;
+function notify(t){toast.textContent=t;toast.classList.add("show");clearTimeout(timer);timer=setTimeout(()=>toast.classList.remove("show"),2300)}
 function renderSearchResults(song,kind){
-  const q=song+" "+kind+" tab";
-  const sources=[
-    {name:"Songsterr",desc:"互動式 TAB、播放與速度控制",url:searchUrl("https://www.songsterr.com/?pattern=",q),tag:"INTERACTIVE TABS",mark:"S"},
-    {name:"Ultimate Guitar",desc:"社群 TAB、和弦與不同編曲版本",url:searchUrl("https://www.ultimate-guitar.com/search.php?search_type=title&value=",song),tag:"COMMUNITY TABS",mark:"UG"},
-    {name:"Google 搜尋",desc:"探索其他公開譜面與教學來源",url:searchUrl("https://www.google.com/search?q=",q),tag:"WEB DISCOVERY",mark:"↗"}
-  ];
-  const heading=document.createElement("div");
-  heading.className="results-toolbar";
-  const title=document.createElement("strong");
-  title.textContent="「"+song+"」的搜尋入口";
-  const count=document.createElement("small");
-  count.textContent="3 SOURCES READY";
-  heading.append(title,count);
-  const grid=document.createElement("div");
-  grid.className="result-grid";
-  sources.forEach(source=>{
-    const card=document.createElement("article");
-    card.className="result-card";
-    const top=document.createElement("div");
-    top.className="result-topline";
-    const mark=document.createElement("span");
-    mark.className="source-mark";
-    mark.textContent=source.mark;
-    const tag=document.createElement("span");
-    tag.className="source-type";
-    tag.textContent=source.tag;
-    top.append(mark,tag);
-    const name=document.createElement("strong");
-    name.textContent=source.name;
-    const description=document.createElement("small");
-    description.textContent=source.desc;
-    const link=document.createElement("a");
-    link.href=source.url;
-    link.target="_blank";
-    link.rel="noopener noreferrer";
-    link.append(document.createTextNode("開啟 "+source.name));
-    const arrow=document.createElement("b");
-    arrow.textContent="↗";
-    link.append(arrow);
-    card.append(top,name,description,link);
-    grid.append(card);
-  });
-  results.replaceChildren(heading,grid);
+ const q=song+" "+kind+" tab",sources=[
+ {name:"Songsterr",desc:"互動式 TAB、播放與速度控制",url:"https://www.songsterr.com/?pattern="+encodeURIComponent(q),tag:"INTERACTIVE TABS",mark:"S"},
+ {name:"Ultimate Guitar",desc:"社群 TAB、和弦與編曲版本",url:"https://www.ultimate-guitar.com/search.php?search_type=title&value="+encodeURIComponent(song),tag:"COMMUNITY TABS",mark:"UG"},
+ {name:"Google 搜尋",desc:"探索其他公開譜面與教學",url:"https://www.google.com/search?q="+encodeURIComponent(q),tag:"WEB DISCOVERY",mark:"↗"}];
+ const h=document.createElement("div");h.className="results-toolbar";const title=document.createElement("strong");title.textContent="「"+song+"」的搜尋入口";const n=document.createElement("small");n.textContent="3 SOURCES";h.append(title,n);
+ const grid=document.createElement("div");grid.className="result-grid";sources.forEach(x=>{const c=document.createElement("article");c.className="result-card";const top=document.createElement("div");top.className="result-topline";const mark=document.createElement("span");mark.className="source-mark";mark.textContent=x.mark;const tag=document.createElement("span");tag.className="source-type";tag.textContent=x.tag;top.append(mark,tag);const name=document.createElement("strong");name.textContent=x.name;const d=document.createElement("small");d.textContent=x.desc;const a=document.createElement("a");a.href=x.url;a.target="_blank";a.rel="noopener noreferrer";a.textContent="前往來源搜尋 ↗";c.append(top,name,d,a);grid.append(c)});
+ const hint=document.createElement("p");hint.className="import-hint";hint.textContent="取得可使用的譜面文字後，貼到 TAB 工作台，即可在 GuitarSync 編輯、儲存與練習。";results.replaceChildren(h,grid,hint);
 }
-form.addEventListener("submit",event=>{
-  event.preventDefault();
-  const song=input.value.trim();
-  if(!song)return;
-  const kind=instrument.value==="bass"?"bass":"guitar";
-  renderSearchResults(song,kind);
-});
-document.querySelector("#bpmSlider").addEventListener("input",event=>{
-  document.querySelector("#bpmValue").textContent=event.target.value+" BPM";
-});
-document.querySelector("#loopToggle").addEventListener("change",event=>{
-  document.querySelector("#loopStatus").textContent=event.target.checked
-    ?"已開啟循環預覽。實際播放與段落定位功能將於後續版本加入。"
-    :"循環功能預覽，播放同步將於後續版本加入。";
-});
-document.querySelector("#copyTab").addEventListener("click",async()=>{
-  const tab=document.querySelector("#tabContent").textContent;
-  try{
-    await navigator.clipboard.writeText(tab);
-    notify("TAB 已複製到剪貼簿");
-  }catch{
-    notify("瀏覽器未允許剪貼簿存取，請手動選取 TAB");
-  }
-});
+form.addEventListener("submit",e=>{e.preventDefault();if(input.value.trim())renderSearchResults(input.value.trim(),instrument.value==="bass"?"bass":"guitar")});
+const bpm=document.querySelector("#bpmSlider");bpm.addEventListener("input",()=>{document.querySelector("#bpmValue").textContent=bpm.value+" BPM";if(metroOn)restartMetro()});
+document.querySelector("#loopToggle").addEventListener("change",e=>document.querySelector("#loopStatus").textContent=e.target.checked?"循環模式已開啟。":"循環模式已關閉。");
+function validate(){const lines=editor.value.split(/\r?\n/).filter(x=>x.trim()),strings=lines.filter(x=>/^\s*[eEbBgGdDaA][#b]?\s*\|/.test(x));document.querySelector("#lineCount").textContent=strings.length?strings.length+" STRINGS":"TEXT TAB";document.querySelector("#tabValidation").textContent=strings.length>=4?"偵測到 "+strings.length+" 條弦線":"文字譜面";document.querySelector("#tabState").textContent="未儲存變更"}
+editor.addEventListener("input",validate);
+document.querySelector("#tabName").addEventListener("input",e=>document.querySelector("#tabTitle").textContent=e.target.value||"Untitled TAB");
+document.querySelector("#tabTuning").addEventListener("change",e=>document.querySelector("#tuningLabel").textContent=e.target.selectedOptions[0].textContent.split(" · ")[0]);
+document.querySelector("#loadDemo").addEventListener("click",()=>{editor.value=demo;document.querySelector("#tabName").value="Example Riff";document.querySelector("#tabTitle").textContent="Example Riff";validate();notify("已載入示範 TAB")});
+document.querySelector("#clearTab").addEventListener("click",()=>{editor.value="";validate();notify("編輯器已清空")});
+document.querySelector("#copyTab").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(editor.value);notify("TAB 已複製")}catch{editor.focus();editor.select();notify("請按 Ctrl+C 複製")}});
+document.querySelector("#tabFile").addEventListener("change",async e=>{const f=e.target.files[0];if(!f)return;if(f.size>1048576){notify("檔案需小於 1 MB");return}editor.value=await f.text();document.querySelector("#tabName").value=f.name.replace(/\.(txt|tab)$/i,"");document.querySelector("#tabTitle").textContent=document.querySelector("#tabName").value;validate();notify("譜面已匯入")});
+document.querySelector("#downloadTab").addEventListener("click",()=>{const u=URL.createObjectURL(new Blob([editor.value],{type:"text/plain;charset=utf-8"})),a=document.createElement("a");a.href=u;a.download=(document.querySelector("#tabName").value||"guitarsync-tab")+".txt";a.click();URL.revokeObjectURL(u);notify("已匯出 TXT")});
+function library(){try{return JSON.parse(localStorage.getItem("guitarsync-tabs")||"[]")}catch{return []}}
+function refresh(){const list=library(),sel=document.querySelector("#savedTabs");sel.replaceChildren(new Option("選擇已儲存譜面",""));list.forEach((x,i)=>sel.add(new Option(x.name+" · "+x.date,i)));document.querySelector("#savedCount").textContent=list.length+" 首"}
+document.querySelector("#saveTab").addEventListener("click",()=>{const name=document.querySelector("#tabName").value.trim()||"Untitled TAB",list=library(),item={name,text:editor.value,tuning:document.querySelector("#tabTuning").value,meter:document.querySelector("#timeSignature").value,date:new Date().toLocaleDateString("zh-TW")},at=list.findIndex(x=>x.name===name);if(at>=0)list[at]=item;else list.unshift(item);try{localStorage.setItem("guitarsync-tabs",JSON.stringify(list.slice(0,50)));refresh();document.querySelector("#tabState").textContent="已儲存於本機";notify("已儲存到本機譜面庫")}catch{notify("儲存空間不足，請匯出 TXT")}});
+document.querySelector("#savedTabs").addEventListener("change",e=>{if(e.target.value==="")return;const x=library()[Number(e.target.value)];if(!x)return;editor.value=x.text;document.querySelector("#tabName").value=x.name;document.querySelector("#tabTitle").textContent=x.name;document.querySelector("#tabTuning").value=x.tuning;document.querySelector("#timeSignature").value=x.meter;document.querySelector("#tabTuning").dispatchEvent(new Event("change"));validate();document.querySelector("#tabState").textContent="已從本機載入"});
+function tick(){if(!ctx)ctx=new(window.AudioContext||window.webkitAudioContext)();if(ctx.state==="suspended")ctx.resume();const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.value=beat===0?1100:760;g.gain.setValueAtTime(.0001,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.15,ctx.currentTime+.006);g.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+.08);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+.09);document.querySelector("#beatNumber").textContent=beat+1;beat=(beat+1)%Number(document.querySelector("#timeSignature").value)}
+function restartMetro(){clearInterval(metro);metro=setInterval(tick,60000/Number(bpm.value))}
+function stopMetro(){clearInterval(metro);metro=null;metroOn=false;document.querySelector("#metronomeToggle").textContent="啟動節拍器"}
+document.querySelector("#metronomeToggle").addEventListener("click",()=>{if(metroOn){stopMetro();return}metroOn=true;beat=0;tick();restartMetro();document.querySelector("#metronomeToggle").textContent="停止節拍器"});
+document.querySelector("#timeSignature").addEventListener("change",()=>beat=0);window.addEventListener("pagehide",stopMetro);refresh();validate();
