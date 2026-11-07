@@ -57,7 +57,7 @@
       <section class="score-player panel" id="scorePlayer">
         <div class="section-head"><div><div class="eyebrow">LIVE SCORE ENGINE</div><h2>完整譜面播放器</h2></div><span class="section-note">GUITAR PRO · MUSICXML · CAPELLA</span></div>
         <div class="score-toolbar">
-          <button id="scoreDemo" class="ghost-btn" type="button">載入示範譜</button>\n          <label class="score-upload-btn">匯入真正的譜面檔案<input id="scoreFile" type="file" accept=".gp3,.gp4,.gp5,.gpx,.gp,.gp7,.gp8,.xml,.musicxml,.mxl,.capx"></label>
+          <button id="scoreDemo" class="ghost-btn" type="button">載入示範譜</button>          <label class="score-upload-btn">匯入真正的譜面檔案<input id="scoreFile" type="file" accept=".gp3,.gp4,.gp5,.gpx,.gp,.gp7,.gp8,.xml,.musicxml,.mxl,.capx"></label>
           <label class="score-track-label">音軌<select id="scoreTrack" disabled><option>載入譜面後選擇</option></select></label>
           <button id="scorePlay" class="primary-btn" type="button" disabled>播放</button>
           <button id="scoreStop" class="ghost-btn" type="button" disabled>停止</button>
@@ -66,7 +66,7 @@
         <div class="alpha-viewport"><div id="alphaTab"></div></div>
         <p class="score-footnote">譜面由 alphaTab 即時解析與繪製。檔案在你的瀏覽器內處理，不會上傳到 GuitarSync 伺服器。請使用你有權使用的譜面檔案。</p>
       </section>
-\n      <div class="studio-layout">
+      <div class="studio-layout">
         <div class="studio-main panel">
           <div class="studio-toolbar"><div class="studio-file"><span class="live-dot"></span><div><strong id="tabTitle">My TAB</strong><small id="tabState">尚未儲存</small></div></div><div class="studio-actions"><button id="loadDemo" class="ghost-btn">載入範例</button><button id="saveTab" class="ghost-btn">儲存</button><button id="copyTab" class="ghost-btn">複製</button><button id="downloadTab" class="ghost-btn">匯出 .txt</button></div></div>
           <div class="tab-details"><label>歌曲名稱<input id="tabName" value="Example Riff" maxlength="80"></label><label>調弦<select id="tabTuning"><option value="E A D G B E">Standard · E A D G B E</option><option value="Eb Ab Db Gb Bb Eb">半音降弦 · Eb Ab Db Gb Bb Eb</option><option value="D A D G B E">Drop D · D A D G B E</option><option value="D G C F A D">全音降弦 · D G C F A D</option></select></label><label>拍號<select id="timeSignature"><option value="4">4/4</option><option value="3">3/4</option><option value="6">6/8</option></select></label></div>
@@ -96,6 +96,6 @@ E|0---------------|2---------------|</textarea>
     <footer><a class="brand footer-brand" href="#"><span class="brand-mark">G<span>↗</span></span><span>GUITAR<span class="brand-light">SYNC</span><small>THE GUITAR WORKSPACE</small></span></a><span>BUILT FOR THE LOVE OF PLAYING.</span><span><a href="https://alphatab.net" target="_blank" rel="noopener">Notation &amp; playback: alphaTab</a> · © 2026 GUITARSYNC</span></footer>
   </main>
   <div id="toast" class="toast" role="status"></div>
-  <script src="https://cdn.jsdelivr.net/npm/@coderline/alphatab@latest/dist/alphaTab.min.js"></script>\n  <script src="app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@coderline/alphatab@latest/dist/alphaTab.min.js"></script>  <script src="app.js"></script>
 </body>
 </html>
