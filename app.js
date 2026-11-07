@@ -83,7 +83,7 @@ document.querySelector("#timeSignature").addEventListener("change",()=>beat=0);w
        enablePlayer:true,
        enableCursor:true,
        soundFont:"https://cdn.jsdelivr.net/npm/@coderline/alphatab@latest/dist/soundfont/sonivox.sf2",
-       scrollElement:".alpha-viewport"
+       scrollElement:document.querySelector(".alpha-viewport")
      }
    });
  }catch(error){
