@@ -24,7 +24,7 @@ async function search(query,kind){
   const res=await fetch("https://www.songsterr.com/api/songs?pattern="+encodeURIComponent(query)+"&size=20",{headers:{Accept:"application/json"}});
   if(!res.ok)throw Error("HTTP "+res.status);
   const data=await res.json();const all=Array.isArray(data)?data:(data.songs||data.results||[]);
-  const songs=all.filter(song=>{const ts=song.tracks||[];return !ts.length||ts.some(t=>kind==="bass"?/bass/i.test((t.instrument||"")+" "+(t.name||"")):/guitar/i.test((t.instrument||"")+" "+(t.name||"")))});
+  const songs=kind==="bass"?all.filter(song=>(song.tracks||[]).some(t=>/bass/i.test([t.instrument?.name||t.instrument,t.name,t.trackName].filter(Boolean).join(" ")))):all;
   if(!songs.length){message("沒有找到符合的曲目","請試試英文歌名或藝人名稱。");return}
   const head=document.createElement("div");head.className="results-toolbar";const label=document.createElement("strong");label.textContent="搜尋結果："+query;const count=document.createElement("small");count.textContent=songs.length+" TRACKS";head.append(label,count);
   const grid=document.createElement("div");grid.className="result-grid";
@@ -150,7 +150,7 @@ document.querySelector("#timeSignature").addEventListener("change",()=>beat=0);w
  speed.addEventListener("input",()=>{
    const value=Number(speed.value);
    speedValue.textContent=value+"%";
-   if(api)api.playbackSpeed=value;
+   if(api)api.playbackSpeed=value/100;
  });
  trackSelect.addEventListener("change",()=>{
    if(!loaded)return;
