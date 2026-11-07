@@ -55,43 +55,23 @@
       <div class="section-head"><div><div class="eyebrow">02 — TAB STUDIO</div><h2>互動 TAB 工作台</h2></div><span class="section-note">IMPORT · EDIT · PRACTISE</span></div>
       <div class="studio-layout">
         <div class="studio-main panel">
-          <div class="studio-toolbar">
-            <div class="studio-file"><span class="live-dot"></span><div><strong id="tabTitle">My TAB</strong><small id="tabState">尚未儲存</small></div></div>
-            <div class="studio-actions">
-              <button id="loadDemo" class="ghost-btn">載入範例</button>
-              <button id="saveTab" class="ghost-btn">儲存</button>
-              <button id="copyTab" class="ghost-btn">複製</button>
-              <button id="downloadTab" class="ghost-btn">匯出 .txt</button>
-            </div>
-          </div>
-          <div class="tab-details">
-            <label>歌曲名稱<input id="tabName" type="text" value="Example Riff" maxlength="80"></label>
-            <label>調弦<select id="tabTuning"><option value="E A D G B E">Standard · E A D G B E</option><option value="Eb Ab Db Gb Bb Eb">半音降弦 · Eb Ab Db Gb Bb Eb</option><option value="D A D G B E">Drop D · D A D G B E</option><option value="D G C F A D">全音降弦 · D G C F A D</option></select></label>
-            <label>拍號<select id="timeSignature"><option value="4">4/4</option><option value="3">3/4</option><option value="6">6/8</option></select></label>
-          </div>
-          <div class="editor-heading"><span>譜面編輯器 <small>支援 ASCII TAB</small></span><span id="lineCount">6 STRINGS</span></div>
-          <textarea id="tabEditor" class="tab-editor" spellcheck="false" autocapitalize="off" aria-label="TAB 譜面編輯器">e|----------------|----------------|
+          <div class="studio-toolbar"><div class="studio-file"><span class="live-dot"></span><div><strong id="tabTitle">My TAB</strong><small id="tabState">尚未儲存</small></div></div><div class="studio-actions"><button id="loadDemo" class="ghost-btn">載入範例</button><button id="saveTab" class="ghost-btn">儲存</button><button id="copyTab" class="ghost-btn">複製</button><button id="downloadTab" class="ghost-btn">匯出 .txt</button></div></div>
+          <div class="tab-details"><label>歌曲名稱<input id="tabName" value="Example Riff" maxlength="80"></label><label>調弦<select id="tabTuning"><option value="E A D G B E">Standard · E A D G B E</option><option value="Eb Ab Db Gb Bb Eb">半音降弦 · Eb Ab Db Gb Bb Eb</option><option value="D A D G B E">Drop D · D A D G B E</option><option value="D G C F A D">全音降弦 · D G C F A D</option></select></label><label>拍號<select id="timeSignature"><option value="4">4/4</option><option value="3">3/4</option><option value="6">6/8</option></select></label></div>
+          <div class="editor-heading"><span>譜面編輯器 <small>ASCII TAB</small></span><span id="lineCount">6 STRINGS</span></div>
+          <textarea id="tabEditor" class="tab-editor" spellcheck="false">e|----------------|----------------|
 B|----------------|----------------|
 G|--------0-------|--------2-------|
 D|----2-----2---2-|----4-----4---4-|
 A|--2---2-----2---|--4---4-----4---|
 E|0---------------|2---------------|</textarea>
-          <div class="editor-footer"><span>可直接貼上從其他地方取得且有權使用的 TAB 文字</span><span id="tabValidation">等待編輯</span></div>
-          <div class="import-row"><label class="file-import">匯入 .txt 檔案<input id="tabFile" type="file" accept=".txt,.tab,text/plain"></label><button id="clearTab" class="ghost-btn">清空編輯器</button></div>
+          <div class="editor-footer"><span>貼上你有權使用的 TAB 文字，直接編輯</span><span id="tabValidation">等待編輯</span></div>
+          <div class="import-row"><label class="file-import">匯入 .txt 檔案<input id="tabFile" type="file" accept=".txt,.tab,text/plain"></label><button id="clearTab" class="ghost-btn">清空</button></div>
         </div>
-        <aside class="tools-panel panel studio-tools">
-          <div class="eyebrow">PRACTICE TOOLS</div><h3>練習控制</h3>
-          <div class="tool-row"><div><span class="tool-icon">♩</span><span>節拍速度</span></div><strong id="bpmValue">120 BPM</strong></div>
-          <input id="bpmSlider" type="range" min="40" max="220" value="120">
-          <div class="range-labels"><span>40</span><span>220</span></div>
+        <aside class="tools-panel panel studio-tools"><div class="eyebrow">PRACTICE TOOLS</div><h3>練習控制</h3><div class="tool-row"><div><span class="tool-icon">♩</span><span>節拍速度</span></div><strong id="bpmValue">120 BPM</strong></div><input id="bpmSlider" type="range" min="40" max="220" value="120"><div class="range-labels"><span>40</span><span>220</span></div>
           <div class="metronome-box"><div><strong id="beatNumber">1</strong><span>BEAT</span></div><button id="metronomeToggle" class="primary-btn">啟動節拍器</button></div>
-          <div class="tool-row loop-row"><div><span class="tool-icon">↻</span><span>段落循環</span></div><label class="switch"><input id="loopToggle" type="checkbox"><span></span></label></div>
-          <div id="loopStatus" class="tool-description">循環練習設定已就緒；完整小節播放定位將在後續加入。</div>
-          <div class="tool-divider"></div>
-          <div class="tool-row"><div><span class="tool-icon">⌁</span><span>目前調弦</span></div><strong id="tuningLabel">Standard</strong></div>
-          <div class="tuning"><span>E</span><span>A</span><span>D</span><span>G</span><span>B</span><span>E</span></div>
-          <div class="tool-divider"></div>
-          <div class="saved-tabs"><div class="tool-row"><span>本機譜面庫</span><strong id="savedCount">0 首</strong></div><select id="savedTabs"><option value="">選擇已儲存譜面</option></select><small>資料只儲存在目前瀏覽器，不會上傳伺服器。</small></div>
+          <div class="tool-row loop-row"><div><span class="tool-icon">↻</span><span>段落循環</span></div><label class="switch"><input id="loopToggle" type="checkbox"><span></span></label></div><div id="loopStatus" class="tool-description">循環練習模式</div><div class="tool-divider"></div>
+          <div class="tool-row"><div><span class="tool-icon">⌁</span><span>目前調弦</span></div><strong id="tuningLabel">Standard</strong></div><div class="tuning"><span>E</span><span>A</span><span>D</span><span>G</span><span>B</span><span>E</span></div><div class="tool-divider"></div>
+          <div class="saved-tabs"><div class="tool-row"><span>本機譜面庫</span><strong id="savedCount">0 首</strong></div><select id="savedTabs"><option value="">選擇已儲存譜面</option></select><small>只儲存在目前瀏覽器，不會上傳伺服器。</small></div>
         </aside>
       </div>
     </section>
