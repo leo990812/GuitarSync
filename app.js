@@ -60,7 +60,8 @@ document.querySelector("#timeSignature").addEventListener("change",()=>beat=0);w
 (function initGuitarSyncScorePlayer(){
  const host=document.getElementById("alphaTab");
  if(!host)return;
- const fileInput=document.getElementById("scoreFile");\n const demoButton=document.getElementById("scoreDemo");
+ const fileInput=document.getElementById("scoreFile");
+ const demoButton=document.getElementById("scoreDemo");
  const trackSelect=document.getElementById("scoreTrack");
  const playButton=document.getElementById("scorePlay");
  const stopButton=document.getElementById("scoreStop");
@@ -91,8 +92,11 @@ document.querySelector("#timeSignature").addEventListener("change",()=>beat=0);w
    return;
  }
  let loaded=false;
+ let playerReady=false;
+ let currentScore=null;
  api.scoreLoaded.on(score=>{
    loaded=true;
+   currentScore=score;
    trackSelect.replaceChildren();
    (score.tracks||[]).forEach((track,index)=>{
      const option=document.createElement("option");
@@ -101,30 +105,27 @@ document.querySelector("#timeSignature").addEventListener("change",()=>beat=0);w
      trackSelect.append(option);
    });
    trackSelect.disabled=(score.tracks||[]).length===0;
-   playButton.disabled=false;
-   stopButton.disabled=false;
+   playButton.disabled=!playerReady;
+   stopButton.disabled=!playerReady;
    speed.disabled=false;
    setStatus("已載入："+(score.title||"未命名曲目")+" · "+(score.tracks||[]).length+" 條音軌。譜面已在本站顯示。");
  });
- api.playerReady.on(()=>{\n   playerReady=true;\n   if(loaded){playButton.disabled=false;stopButton.disabled=false;speed.disabled=false;}\n   setStatus(status.textContent+" 播放器已就緒。");\n });
- api.playerStateChanged.on(event=>{
-   const state=String(event.state);
-   playButton.textContent=/Playing/i.test(state)?"暫停":"播放";
+ api.playerReady.on(()=>{
+   playerReady=true;
+   if(loaded){playButton.disabled=false;stopButton.disabled=false;}
+   setStatus(status.textContent+" 播放器已就緒。");
  });
+
  api.error.on(error=>{
    const detail=error?.message||error?.toString?.()||"未知錯誤";
    setStatus("譜面處理失敗："+detail+"。請確認檔案格式受支援且檔案沒有損毀。");
  });
- demoButton.addEventListener("click",async()=>{
-   setStatus("正在載入 alphaTab 官方示範 Guitar Pro 檔案…");
+ demoButton.addEventListener("click",()=>{
+   setStatus("正在建立內建示範 TAB…");
    try{
-     const response=await fetch("https://www.alphatab.net/files/iron-waltz.gp");
-     if(!response.ok)throw new Error("示範檔下載失敗（HTTP "+response.status+"）");
-     const bytes=new Uint8Array(await response.arrayBuffer());
-     if(!api.load(bytes))throw new Error("示範檔格式無法辨識");
-   }catch(error){
-     setStatus("示範譜載入失敗："+(error.message||String(error))+"。你仍可使用上方按鈕匯入自己的譜面檔。");
-   }
+     api.tex('\\title "GuitarSync Demo"\n\\tempo 100\n.\n:4 0.6 1.6 3.6 0.5 2.5 3.5 0.4 2.4 | 3.4 0.3 2.3 0.2 1.2 3.2 0.1 1.1 | 3.1.1');
+     setStatus("內建示範 TAB 已送入譜面引擎。");
+   }catch(error){setStatus("示範譜建立失敗："+(error.message||String(error)));}
  });
  fileInput.addEventListener("change",async()=>{
    const file=fileInput.files?.[0];
@@ -141,17 +142,19 @@ document.querySelector("#timeSignature").addEventListener("change",()=>beat=0);w
  });
  playButton.addEventListener("click",()=>{
    if(!loaded)return;
-   try{api.playPause();}catch(error){setStatus("無法播放："+(error.message||String(error)));}
+   try{api.playPause();playButton.textContent=playButton.textContent==="播放"?"暫停":"播放";}catch(error){setStatus("無法播放："+(error.message||String(error)));}
  });
  stopButton.addEventListener("click",()=>{if(loaded)api.stop();playButton.textContent="播放";});
- const loopControl=document.getElementById("loopToggle");\n if(loopControl)loopControl.addEventListener("change",()=>{if(playerReady)api.isLooping=loopControl.checked;});\n speed.addEventListener("input",()=>{
+ const loopControl=document.getElementById("loopToggle");
+ if(loopControl)loopControl.addEventListener("change",()=>{api.isLooping=loopControl.checked;});
+ speed.addEventListener("input",()=>{
    const value=Number(speed.value);
    speedValue.textContent=value+"%";
    if(api)api.playbackSpeed=value;
  });
  trackSelect.addEventListener("change",()=>{
    if(!loaded)return;
-   const track=api.score.tracks[Number(trackSelect.value)];
+   const track=currentScore?.tracks?.[Number(trackSelect.value)];
    if(track)api.renderTracks([track]);
  });
  window.addEventListener("pagehide",()=>api?.destroy(),{once:true});
