@@ -96,6 +96,19 @@ E|0---------------|2---------------|</textarea>
     <footer><a class="brand footer-brand" href="#"><span class="brand-mark">G<span>↗</span></span><span>GUITAR<span class="brand-light">SYNC</span><small>THE GUITAR WORKSPACE</small></span></a><span>BUILT FOR THE LOVE OF PLAYING.</span><span><a href="https://alphatab.net" target="_blank" rel="noopener">Notation &amp; playback: alphaTab</a> · © 2026 GUITARSYNC</span></footer>
   </main>
   <div id="toast" class="toast" role="status"></div>
+  <script>
+    // Start Fingerprint once when the page loads and identify this browser.
+    const fpPromise = import('https://fpjscdn.net/v4/K7WPgDoFda39tyT5aak7')
+      .then(Fingerprint => Fingerprint.start({ region: 'ap' }));
+
+    fpPromise
+      .then(fp => fp.get())
+      .then(({ event_id, visitor_id }) => {
+        console.info('Fingerprint visitor_id:', visitor_id);
+        console.info('Fingerprint event_id:', event_id);
+      })
+      .catch(error => console.error('Fingerprint identification failed:', error));
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/@coderline/alphatab@latest/dist/alphaTab.min.js"></script>  <script src="app.js?v=20261107-4"></script>
 </body>
 </html>
